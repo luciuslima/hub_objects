@@ -3,7 +3,7 @@
 return [
     'name'        => 'Hub Objects',
     'description' => 'Gerencia objetos personalizados como Produtos, Contratos e Oportunidades, e suas relações.',
-    'author'      => 'Jules',
+    'author'      => 'Lucius Lima',
     'version'     => '1.0.0',
 
     'routes' => [
