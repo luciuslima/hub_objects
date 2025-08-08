@@ -1,6 +1,6 @@
 # Hub Objects Plugin for Mautic
 
-**Autor:** Jules
+**Autor:** Lucius Lima
 **Versão:** 1.0.0
 
 ## Descrição
