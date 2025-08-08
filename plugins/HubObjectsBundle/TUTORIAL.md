@@ -93,6 +93,7 @@ curl -X POST https://seu-mautic.com/api/hubobjects/products/new \
 }'
 ```
 
+feat/hub-objects-plugin-final
 **Criar um Novo Contrato (associado ao Contato ID 123)**
 ```bash
 curl -X POST https://seu-mautic.com/api/hubobjects/contracts/new \
@@ -105,7 +106,6 @@ curl -X POST https://seu-mautic.com/api/hubobjects/contracts/new \
     "contact": 123,
     "products": [1, 2]
 }'
-```
 
 **Listar todos os Contratos**
 ```bash
@@ -113,6 +113,7 @@ curl -X GET https://seu-mautic.com/api/hubobjects/contracts \
 -H "Authorization: Bearer SEU_TOKEN"
 ```
 
+feat/hub-objects-plugin-final
 **Criar uma Nova Oportunidade (associada ao Contato ID 456)**
 ```bash
 curl -X POST https://seu-mautic.com/api/hubobjects/opportunities/new \

@@ -151,7 +151,9 @@ Base URL: `/api/hubobjects/contracts`
   - `value` (float): Valor do contrato.
   - `startDate` (string): Data de início (`YYYY-MM-DD HH:MM:SS`).
   - `endDate` (string): Data de fim (`YYYY-MM-DD HH:MM:SS`).
+feat/hub-objects-plugin-final
   - `contact` (int, **obrigatório**): ID do Contato do Mautic ao qual este contrato será associado.
+main
   - `products` (array): Array de IDs de produtos a serem associados.
 
 **Exemplo de Payload:**
@@ -200,6 +202,7 @@ Base URL: `/api/hubobjects/opportunities`
   - `amount` (float): Valor da oportunidade.
   - `stage` (string): Estágio da oportunidade (ex: `prospecting`, `closed_won`).
   - `closeDate` (string): Data de fechamento esperada (`YYYY-MM-DD HH:MM:SS`).
+feat/hub-objects-plugin-final
   - `contact` (int, **obrigatório**): ID do Contato do Mautic ao qual esta oportunidade será associada.
 
 **Exemplo de Payload:**
