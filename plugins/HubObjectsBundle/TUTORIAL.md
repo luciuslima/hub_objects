@@ -93,10 +93,38 @@ curl -X POST https://seu-mautic.com/api/hubobjects/products/new \
 }'
 ```
 
+feat/hub-objects-plugin-final
+**Criar um Novo Contrato (associado ao Contato ID 123)**
+```bash
+curl -X POST https://seu-mautic.com/api/hubobjects/contracts/new \
+-H "Authorization: Bearer SEU_TOKEN" \
+-H "Content-Type: application/json" \
+-d '{
+    "name": "Contrato de Suporte Anual",
+    "value": 1200.00,
+    "startDate": "2024-01-01 00:00:00",
+    "contact": 123,
+    "products": [1, 2]
+}'
+
 **Listar todos os Contratos**
 ```bash
 curl -X GET https://seu-mautic.com/api/hubobjects/contracts \
 -H "Authorization: Bearer SEU_TOKEN"
+```
+
+feat/hub-objects-plugin-final
+**Criar uma Nova Oportunidade (associada ao Contato ID 456)**
+```bash
+curl -X POST https://seu-mautic.com/api/hubobjects/opportunities/new \
+-H "Authorization: Bearer SEU_TOKEN" \
+-H "Content-Type: application/json" \
+-d '{
+    "name": "Oportunidade de Venda - Q4",
+    "amount": 5000.00,
+    "stage": "proposal",
+    "contact": 456
+}'
 ```
 
 **Atualizar o Estágio de uma Oportunidade (ID 123)**
