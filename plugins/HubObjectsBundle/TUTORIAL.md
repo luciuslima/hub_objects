@@ -42,6 +42,21 @@ Depois de definir um objeto (ex: "Faturas"), um novo item de menu aparecerá na 
     *   O formulário que aparece será **dinâmico**, contendo exatamente os campos que você definiu na Etapa 1.
     *   Preencha os dados da fatura e salve.
 
+
+### Usando Objetos em Campanhas
+
+Você pode usar as propriedades dos seus objetos personalizados como condições em campanhas.
+
+1.  No Construtor de Campanhas, adicione um novo item de **Condição**.
+2.  Selecione a opção **"Verifica Propriedade de Objeto Hub"**.
+3.  No formulário da condição:
+    *   **Objeto**: Selecione o objeto personalizado que você quer verificar (ex: "Faturas").
+    *   **Campo**: O dropdown de campos será atualizado com as propriedades do objeto selecionado. Escolha uma (ex: "Status").
+    *   **Operador**: Escolha um operador de comparação (ex: "Igual a").
+    *   **Valor**: Digite o valor a ser comparado (ex: "pago").
+4.  Esta condição agora verificará se o contato possui uma fatura com o status "pago".
+
+
 ## 3. Uso via API
 
 A API agora é dinâmica e usa o `slug` do objeto na URL.

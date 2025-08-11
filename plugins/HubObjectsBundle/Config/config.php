@@ -93,6 +93,11 @@ return [
             'mautic.hubobjects.form.type.objectinstance' => [
                 'class' => \MauticPlugin\HubObjectsBundle\Form\Type\ObjectInstanceType::class,
             ],
+            'mautic.hubobjects.form.type.campaigncondition' => [
+                'class'     => \MauticPlugin\HubObjectsBundle\Form\Type\CampaignConditionType::class,
+                'arguments' => ['mautic.hubobjects.model.definition'],
+                'alias'     => 'hubobjects_campaign_condition',
+            ],
         ],
         'events' => [
             'mautic.hubobjects.subscriber.segment' => [

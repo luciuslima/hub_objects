@@ -8,10 +8,10 @@ use Mautic\CampaignBundle\CampaignEvents;
 use Mautic\CampaignBundle\Event\CampaignBuilderEvent;
 use Mautic\CampaignBundle\Event\CampaignExecutionEvent;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
+use MauticPlugin\HubObjectsBundle\Form\Type\CampaignConditionType;
 use MauticPlugin\HubObjectsBundle\HubObjectsEvents;
 use MauticPlugin\HubObjectsBundle\Model\ObjectDefinitionModel;
 use MauticPlugin\HubObjectsBundle\Model\ObjectInstanceModel;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class CampaignSubscriber extends CommonSubscriber
 {
@@ -34,62 +34,70 @@ class CampaignSubscriber extends CommonSubscriber
 
     public function onCampaignBuild(CampaignBuilderEvent $event): void
     {
-        // This is a proof-of-concept for a condition. A fully dynamic UI would be more complex.
-        // This condition checks the 'stage' of an object with the slug 'oportunidades'.
         $event->addCondition(
-            'hubobjects.opportunity_stage_check',
+            'hubobjects.property_check',
             [
-                'label'           => 'mautic.hubobjects.campaign.condition.opportunity_stage',
-                'description'     => 'mautic.hubobjects.campaign.condition.opportunity_stage.desc',
-                'eventName'       => HubObjectsEvents::ON_CAMPAIGN_TRIGGER_CONDITION,
-                'formType'        => ChoiceType::class,
-                'formTypeOptions' => [
-                    'choices' => [
-                        'Prospecting'   => 'prospecting',
-                        'Qualification' => 'qualification',
-                        'Proposal'      => 'proposal',
-                        'Negotiation'   => 'negotiation',
-                        'Closed Won'    => 'closed_won',
-                        'Closed Lost'   => 'closed_lost',
-                    ],
-                ],
+                'label'       => 'mautic.hubobjects.campaign.condition.property_check',
+                'description' => 'mautic.hubobjects.campaign.condition.property_check.desc',
+                'eventName'   => HubObjectsEvents::ON_CAMPAIGN_TRIGGER_CONDITION,
+                'formType'    => CampaignConditionType::class,
             ]
         );
     }
 
     public function onCampaignTriggerCondition(CampaignExecutionEvent $event): void
     {
-        $contact    = $event->getLead();
-        $config     = $event->getConfig();
-        $checkStage = $config['form']['stage'] ?? null;
+        $config = $event->getConfig();
+        $formConfig = $config['form'] ?? [];
 
-        if (!$checkStage) {
+        $definitionId = $formConfig['object'] ?? null;
+        $field        = $formConfig['field'] ?? null;
+        $operator     = $formConfig['operator'] ?? null;
+        $value        = $formConfig['value'] ?? null;
+
+        if (!$definitionId || !$field || !$operator || $value === null) {
             $event->setResult(false);
             return;
         }
 
-        // Find the 'oportunidades' object definition
-        $definition = $this->definitionModel->getRepository()->findOneBy(['slug' => 'oportunidades']);
+        $contact = $event->getLead();
+        $definition = $this->definitionModel->getEntity($definitionId);
+
         if (!$definition) {
             $event->setResult(false);
             return;
         }
 
-        // Find the latest instance of this object for the contact
+        // This is a simplified check. A full implementation would need a more robust query builder.
         $instances = $this->instanceModel->getRepository()->findBy(
             ['contact' => $contact, 'objectDefinition' => $definition],
-            ['dateAdded' => 'DESC'],
-            1
+            ['dateAdded' => 'DESC']
         );
 
-        if (empty($instances)) {
-            $event->setResult(false);
-            return;
+        $found = false;
+        foreach ($instances as $instance) {
+            $properties = $instance->getProperties();
+            if (isset($properties[$field])) {
+                $actualValue = $properties[$field];
+                if ($this->evaluateCondition($actualValue, $operator, $value)) {
+                    $found = true;
+                    break;
+                }
+            }
         }
 
-        $properties  = $instances[0]->getProperties();
-        $actualStage = $properties['stage'] ?? null;
+        $event->setResult($found);
+    }
 
-        $event->setResult($actualStage === $checkStage);
+    private function evaluateCondition($actualValue, string $operator, $conditionValue): bool
+    {
+        return match ($operator) {
+            '=' => $actualValue == $conditionValue,
+            '!=' => $actualValue != $conditionValue,
+            '>' => $actualValue > $conditionValue,
+            '<' => $actualValue < $conditionValue,
+            'like' => str_contains((string) $actualValue, (string) $conditionValue),
+            default => false,
+        };
     }
 }
