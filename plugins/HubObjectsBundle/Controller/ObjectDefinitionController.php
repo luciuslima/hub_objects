@@ -20,6 +20,12 @@ class ObjectDefinitionController extends FormController
     {
         /** @var ObjectDefinitionModel $model */
         $model = $this->getModel('hubobjects.definition');
+
+
+        if (!$this->security->isGranted($model->getPermissionBase().':view')) {
+            return $this->accessDenied();
+        }
+
         $this->setListStandardParameters($page);
         $items = $model->getEntities([
             'start'      => $this->page,
@@ -59,19 +65,46 @@ class ObjectDefinitionController extends FormController
      */
     public function executeAction(Request $request, $objectAction, $objectId = 0): Response
     {
+
+        /** @var ObjectDefinitionModel $model */
+        $model  = $this->getModel('hubobjects.definition');
+        $permBase = $model->getPermissionBase();
+
         if ($objectAction === 'new') {
+            if (!$this->security->isGranted($permBase.':create')) {
+                return $this->accessDenied();
+            }
             $entity = new ObjectDefinition();
         } else {
-            /** @var ObjectDefinitionModel $model */
-            $model  = $this->getModel('hubobjects.definition');
+
             $entity = $model->getEntity($objectId);
             if (null === $entity) {
                 return $this->postActionRedirect($this->getNotFoundRedirect($objectId));
             }
+
+            $permType = ('delete' === $objectAction) ? 'delete' : 'edit';
+            if (!$this->security->isGranted($permBase.':'.$permType, 'MATCH_ONE')) {
+                 return $this->accessDenied();
+            }
         }
 
         if ($objectAction === 'delete') {
-            // ... delete logic here ...
+            $model->deleteEntity($entity);
+
+            $this->addFlashMessage(
+                'mautic.core.notice.deleted',
+                [
+                    '%name%' => $entity->getName(),
+                    '%id%'   => $entity->getId(),
+                ]
+            );
+
+            return $this->postActionRedirect(
+                [
+                    'returnUrl'       => $this->generateUrl('mautic_hubobjects_definition_index'),
+                    'passthroughVars' => ['activeLink' => 'mautic_hubobjects_definition_index'],
+                ]
+            );
         }
 
         $form = $this->get('form.factory')->create(ObjectDefinitionType::class, $entity, [

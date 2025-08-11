@@ -10,6 +10,16 @@ A API permite o gerenciamento programático completo (CRUD) das **instâncias** 
 
 A API utiliza o sistema de autenticação padrão do Mautic (OAuth ou Autenticação Básica). Consulte a [documentação oficial da API do Mautic](https://developer.mautic.org/#rest-api) para detalhes de configuração.
 
+
+### Permissões da API
+
+As ações da API são protegidas por permissões. Para que um usuário de API possa acessar os endpoints, seu Papel (Role) no Mautic precisa ter as seguintes permissões concedidas:
+
+- **`hubobjects:instances:view`**: Para listar e ver detalhes das instâncias.
+- **`hubobjects:instances:create`**: Para criar novas instâncias.
+- **`hubobjects:instances:edit`**: Para editar instâncias existentes.
+- **`hubobjects:instances:delete`**: Para apagar instâncias.
+
 ---
 
 ## Endpoints de Instâncias de Objeto

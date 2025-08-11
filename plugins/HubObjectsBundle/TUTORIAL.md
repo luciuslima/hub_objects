@@ -42,6 +42,13 @@ Depois de definir um objeto (ex: "Faturas"), um novo item de menu aparecerá na 
     *   O formulário que aparece será **dinâmico**, contendo exatamente os campos que você definiu na Etapa 1.
     *   Preencha os dados da fatura e salve.
 
+### Gerenciando Permissões
+
+Para que um usuário do Mautic possa ver e interagir com o Construtor de Objetos e com os dados dos objetos personalizados, um Administrador precisa conceder as permissões apropriadas ao seu Papel (Role).
+
+As permissões são divididas em duas seções:
+- **`Definições de Objetos Hub`**: Permite gerenciar o construtor (criar, editar, apagar os tipos de objeto).
+- **`Instâncias de Objetos Hub`**: Permite gerenciar os dados dos objetos (criar, editar, apagar os registros).
 
 ### Usando Objetos em Campanhas
 
