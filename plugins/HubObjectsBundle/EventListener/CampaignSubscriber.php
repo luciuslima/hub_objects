@@ -62,6 +62,7 @@ class CampaignSubscriber extends CommonSubscriber
 
         $contact = $event->getLead();
         $definition = $this->definitionModel->getEntity($definitionId);
+
         if (!$definition) {
             $event->setResult(false);
             return;

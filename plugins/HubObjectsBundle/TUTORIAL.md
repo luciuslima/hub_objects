@@ -63,6 +63,7 @@ Você pode usar as propriedades dos seus objetos personalizados como condições
     *   **Valor**: Digite o valor a ser comparado (ex: "pago").
 4.  Esta condição agora verificará se o contato possui uma fatura com o status "pago".
 
+
 ## 3. Uso via API
 
 A API agora é dinâmica e usa o `slug` do objeto na URL.

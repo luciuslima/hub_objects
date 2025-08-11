@@ -21,6 +21,7 @@ class ObjectDefinitionController extends FormController
         /** @var ObjectDefinitionModel $model */
         $model = $this->getModel('hubobjects.definition');
 
+
         if (!$this->security->isGranted($model->getPermissionBase().':view')) {
             return $this->accessDenied();
         }
@@ -64,6 +65,7 @@ class ObjectDefinitionController extends FormController
      */
     public function executeAction(Request $request, $objectAction, $objectId = 0): Response
     {
+
         /** @var ObjectDefinitionModel $model */
         $model  = $this->getModel('hubobjects.definition');
         $permBase = $model->getPermissionBase();
@@ -74,6 +76,7 @@ class ObjectDefinitionController extends FormController
             }
             $entity = new ObjectDefinition();
         } else {
+
             $entity = $model->getEntity($objectId);
             if (null === $entity) {
                 return $this->postActionRedirect($this->getNotFoundRedirect($objectId));

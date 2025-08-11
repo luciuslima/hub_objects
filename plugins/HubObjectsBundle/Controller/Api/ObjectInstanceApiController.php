@@ -44,6 +44,7 @@ class ObjectInstanceApiController extends CommonApiController
 
     public function getEntitiesAction(Request $request, string $objectSlug): Response
     {
+
         if (!$this->security->isGranted($this->model->getPermissionBase().':view')) {
             return $this->accessDenied();
         }
@@ -64,6 +65,7 @@ class ObjectInstanceApiController extends CommonApiController
             ['instances' => $entities, 'total' => $count],
             200,
             [],
+
             ['serializerGroups' => ['instanceList']]
         );
 
@@ -89,9 +91,11 @@ class ObjectInstanceApiController extends CommonApiController
 
     public function newEntityAction(Request $request, string $objectSlug): Response
     {
+
         if (!$this->security->isGranted($this->model->getPermissionBase().':create')) {
             return $this->accessDenied();
         }
+
 
         $definition = $this->getDefinition($objectSlug);
         $entity     = $this->model->getEntity();
@@ -112,6 +116,7 @@ class ObjectInstanceApiController extends CommonApiController
 
     public function editEntityAction(Request $request, string $objectSlug, int $id, bool $createIfNotExists = false): Response
     {
+
         if (!$this->security->isGranted($this->model->getPermissionBase().':edit')) {
             return $this->accessDenied();
         }
@@ -151,6 +156,7 @@ class ObjectInstanceApiController extends CommonApiController
 
     public function deleteEntityAction(Request $request, string $objectSlug, int $id): Response
     {
+
         if (!$this->security->isGranted($this->model->getPermissionBase().':delete')) {
             return $this->accessDenied();
         }
