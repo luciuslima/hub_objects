@@ -8,17 +8,18 @@ use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\EmailBundle\EmailEvents;
 use Mautic\EmailBundle\Event\EmailBuilderEvent;
 use Mautic\EmailBundle\Event\EmailSendEvent;
-use MauticPlugin\HubObjectsBundle\Model\OpportunityModel;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use MauticPlugin\HubObjectsBundle\Model\ObjectDefinitionModel;
+use MauticPlugin\HubObjectsBundle\Model\ObjectInstanceModel;
 
 class EmailSubscriber extends CommonSubscriber
 {
-    private OpportunityModel $opportunityModel;
+    private ObjectDefinitionModel $definitionModel;
+    private ObjectInstanceModel $instanceModel;
 
-    public function __construct(OpportunityModel $opportunityModel, UrlGeneratorInterface $router)
+    public function __construct(ObjectDefinitionModel $definitionModel, ObjectInstanceModel $instanceModel)
     {
-        $this->opportunityModel = $opportunityModel;
-        parent::__construct(null, null, null, $router);
+        $this->definitionModel = $definitionModel;
+        $this->instanceModel   = $instanceModel;
     }
 
     public static function getSubscribedEvents(): array
@@ -31,18 +32,25 @@ class EmailSubscriber extends CommonSubscriber
 
     public function onEmailBuild(EmailBuilderEvent $event): void
     {
-        $tokens = [
-            '{contact.opportunity.name}'   => $this->translator->trans('mautic.hubobjects.opportunity.name'),
-            '{contact.opportunity.amount}' => $this->translator->trans('mautic.hubobjects.opportunity.amount'),
-            '{contact.opportunity.stage}'  => $this->translator->trans('mautic.hubobjects.opportunity.stage'),
-        ];
-        $event->addTokenSection('hubobjects.opportunity', 'mautic.hubobjects.opportunity.plural', $tokens);
+        $definitions = $this->definitionModel->getRepository()->findAll();
+        $allTokens   = [];
+
+        foreach ($definitions as $definition) {
+            foreach ($definition->getFields() as $field) {
+                $token = sprintf('{contact.hubobject.%s.%s}', $definition->getSlug(), $field->getName());
+                $allTokens[$token] = $field->getName();
+            }
+        }
+
+        if (!empty($allTokens)) {
+            $event->addTokenSection('hubobjects', 'mautic.hubobjects.objects', $allTokens);
+        }
     }
 
     public function onEmailSend(EmailSendEvent $event): void
     {
         $content = $event->getContent();
-        if (!$content) {
+        if (!$content || !str_contains($content, '{contact.hubobject.')) {
             return;
         }
 
@@ -51,20 +59,44 @@ class EmailSubscriber extends CommonSubscriber
             return;
         }
 
-        if (str_contains($content, '{contact.opportunity.')) {
-            // Find the latest opportunity for the contact
-            $opportunities = $this->opportunityModel->getRepository()->findBy(['contact' => $contact], ['dateAdded' => 'DESC'], 1);
-            if (!empty($opportunities)) {
-                $opportunity = $opportunities[0];
-                $tokens = [
-                    '{contact.opportunity.name}'   => $opportunity->getName(),
-                    '{contact.opportunity.amount}' => $opportunity->getAmount(),
-                    '{contact.opportunity.stage}'  => $opportunity->getStage(),
-                ];
-                $content = str_replace(array_keys($tokens), array_values($tokens), $content);
+        preg_match_all('/{contact\.hubobject\.([^}]+)\.([^}]+)}/', $content, $matches, PREG_SET_ORDER);
+
+        if (empty($matches)) {
+            return;
+        }
+
+        $replacements = [];
+        $fetchedObjects = [];
+
+        foreach ($matches as $match) {
+            $token      = $match[0];
+            $objectSlug = $match[1];
+            $fieldName  = $match[2];
+
+            if (!isset($fetchedObjects[$objectSlug])) {
+                $definition = $this->definitionModel->getRepository()->findOneBy(['slug' => $objectSlug]);
+                if ($definition) {
+                    $instances = $this->instanceModel->getRepository()->findBy(
+                        ['contact' => $contact, 'objectDefinition' => $definition],
+                        ['dateAdded' => 'DESC'],
+                        1
+                    );
+                    $fetchedObjects[$objectSlug] = !empty($instances) ? $instances[0] : null;
+                } else {
+                    $fetchedObjects[$objectSlug] = null;
+                }
+            }
+
+            $instance = $fetchedObjects[$objectSlug];
+            if ($instance) {
+                $properties = $instance->getProperties();
+                $replacements[$token] = $properties[$fieldName] ?? '';
+            } else {
+                $replacements[$token] = ''; // Replace with blank if no instance is found
             }
         }
 
+        $content = str_replace(array_keys($replacements), array_values($replacements), $content);
         $event->setContent($content);
     }
 }
