@@ -42,6 +42,7 @@ Depois de definir um objeto (ex: "Faturas"), um novo item de menu aparecerá na 
     *   O formulário que aparece será **dinâmico**, contendo exatamente os campos que você definiu na Etapa 1.
     *   Preencha os dados da fatura e salve.
 
+
 ### Usando Objetos em Campanhas
 
 Você pode usar as propriedades dos seus objetos personalizados como condições em campanhas.
@@ -54,6 +55,7 @@ Você pode usar as propriedades dos seus objetos personalizados como condições
     *   **Operador**: Escolha um operador de comparação (ex: "Igual a").
     *   **Valor**: Digite o valor a ser comparado (ex: "pago").
 4.  Esta condição agora verificará se o contato possui uma fatura com o status "pago".
+
 
 ## 3. Uso via API
 
